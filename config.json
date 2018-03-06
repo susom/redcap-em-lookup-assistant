@@ -1,0 +1,120 @@
+{
+  "name": "LookupAssistant",
+
+  "namespace":"Stanford\\LookupAssistant",
+
+  "description": "Create hospital list filtered by selection of district and type",
+
+  "authors": [
+    {
+      "name": "Andy Martin",
+      "email": "andy123@stanford.edu",
+      "institution": "Stanford University"
+    },
+    {
+      "name": "Jae Lee",
+      "email": "jael@stanford.edu",
+      "institution": "Stanford University"
+    }
+  ],
+  "permissions": [
+    "redcap_data_entry_form_top",
+    "hook_survey_page_top"
+  ],
+
+  "links": {
+    "control-center": [
+    ],
+    "project": [
+    ]
+  },
+
+  "system-settings": [
+  ],
+
+  "project-settings": [
+    {
+      "key": "field-settings",
+      "name": "Fields to Enable Lookup Assistant",
+      "required": "false",
+      "type": "sub_settings",
+      "repeatable": true,
+      "sub_settings": [
+        {
+          "key": "json-data-file",
+          "name": "<b>Filename containing hierarchical data lookup table</b><br>If the file resides locally on the server in another path, a super-user can write the json_data_path variable for this project_module and it will override the uploaded file value.",
+          "required": false,
+          "type": "file"
+        },
+        {
+          "key": "field",
+          "name": "<b>Name of lookup target field</b><br>Should be a text field",
+          "required": true,
+          "type": "field-list"
+        },
+        {
+          "key": "hierarchy",
+          "name": "Data Level Hierarchy",
+          "required": "false",
+          "type": "sub_settings",
+          "repeatable": true,
+          "sub_settings": [
+            {
+              "key": "level",
+              "name": "Level of hierarchy starting at 1",
+              "required": true,
+              "type": "text"
+            },
+            {
+              "key": "placeholder",
+              "name": "Placeholder",
+              "required": true,
+              "type": "text"
+            },
+            {
+              "key": "aggregate-on-empty",
+              "name": "Check to aggregate dependent lookups when this value is empty<br>(may require client-side processing)",
+              "required": false,
+              "type": "checkbox"
+            },
+            {
+              "key": "update-target",
+              "name": "Check to update the target field when this value is changed<br>(typically this is only checked on the last level of the hierarchy)",
+              "required": false,
+              "type": "checkbox"
+            }
+
+          ]
+        }
+      ]
+    }
+  ],
+
+  "json": [
+    {
+      "field": "test_hospital",
+      "json_data": "/tmp/hospitals_by_district.json",
+      "hide_dependent_fields": false,
+
+      "hierarchy": {
+        "1" : {
+          "placeholder": "Select a State",
+          "aggregateOnEmpty": false
+        },
+        "2" : {
+          "placeholder": "Select a Region",
+          "aggregateOnEmpty": true
+        },
+        "3" : {
+          "placeholder": "Select a Hospital Type",
+          "aggregateOnEmpty": true
+        },
+        "4" : {
+          "placeholder": "Select a Hospital",
+          "updateTarget" : true
+        }
+      }
+    }
+  ]
+
+}
