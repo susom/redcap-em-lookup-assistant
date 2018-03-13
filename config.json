@@ -53,18 +53,19 @@
           "type": "field-list"
         },
         {
+          "key": "edit-target",
+          "name": "<b>Make target field editable</b><br>By default, the target input is marked as read-only to reduce confusion",
+          "required": false,
+          "type": "checkbox"
+        },
+
+        {
           "key": "hierarchy",
           "name": "Data Level Hierarchy",
           "required": "false",
           "type": "sub_settings",
           "repeatable": true,
           "sub_settings": [
-            {
-              "key": "level",
-              "name": "Level of hierarchy starting at 1",
-              "required": true,
-              "type": "text"
-            },
             {
               "key": "placeholder",
               "name": "Placeholder",
@@ -73,13 +74,13 @@
             },
             {
               "key": "aggregate-on-empty",
-              "name": "Check to aggregate dependent lookups when this value is empty<br>(may require client-side processing)",
+              "name": "If checked and this filter is empty, the next filter will contain an aggregate of all possible options.<br>(require client-side processing and could make the page slow/unresponsive)",
               "required": false,
               "type": "checkbox"
             },
             {
               "key": "update-target",
-              "name": "Check to update the target field when this value is changed<br>(typically this is only checked on the last level of the hierarchy)",
+              "name": "Check to update the target field when this value is changed.<br>(typically this is only checked on the last level of the hierarchy)",
               "required": false,
               "type": "checkbox"
             }

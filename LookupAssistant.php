@@ -49,11 +49,14 @@ class LookupAssistant extends \ExternalModules\AbstractExternalModule
         $settings = array();
 
         $fields = $this->getProjectSetting('field');
+        $edit_targets = $this->getProjectSetting('edit-target');
         $json_data_path = $this->getProjectSetting('json-data-path');
 
         foreach ($fields as $i => $field) {
-            $setting = array('field' => $field);
-
+            $setting = array(
+                    'field' => $field,
+                    'edit_target' => $edit_targets[$i]
+            );
             // Get JSON - determine if we are loading from path or file
             $path = false;
             if (!empty($json_data_path[$i])) {
@@ -128,12 +131,13 @@ class LookupAssistant extends \ExternalModules\AbstractExternalModule
             // Append the select2 controls
             $this->insertSelect2();
 
+            echo "<style type='text/css'>" . $this->dumpResource("css/lookup-assistant.css") . "</style>";
+
             // // Insert our custom JS
             echo "<script type='text/javascript'>" . $this->dumpResource("js/lookupAssistant.js") . "</script>";
 
             // Insert our custom JS
-            echo "<script type='text/javascript'>fhl.settings = " . json_encode($this->settings) . "</script>";
-            // echo "<script type='text/javascript'>fhl.settings = " . file_get_contents("/tmp/hospitals_by_district.json") . "</script>";
+            echo "<script type='text/javascript'>lookupAssistant.settings = " . json_encode($this->settings) . "</script>";
     }
 
 
@@ -145,6 +149,7 @@ class LookupAssistant extends \ExternalModules\AbstractExternalModule
         <style><?php echo $this->dumpResource('css/select2-bootstrap.min.css'); ?></style>
         <?php
     }
+
 
     public static function debug() {
         $args = func_get_args();
