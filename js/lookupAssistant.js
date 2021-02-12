@@ -55,6 +55,7 @@ lookupAssistant.init = function() {
                 .attr('id', 'select-' + field + '-' + j)
                 .data('level', j)
                 .data('field', field)
+                .data('allowMultiselect', setting['allow-multiselect'])
                 .data('placeholder', detail.placeholder)
                 .data('aggregateOnEmpty', detail['aggregate-on-empty'])
                 .data('updateTarget', detail['update-target'])
@@ -154,6 +155,8 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
             }
             lookupAssistant.log("updateFilters2: Options: ", option_data);
 
+            var allowMultiselect = sel.data('allowMultiselect') && (j == level_max);
+
             var cache_val = sel.val() || "";
             sel.html('');
             sel.select2({
@@ -161,6 +164,7 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
                 allowClear: true,
                 placeholder: setting.hierarchy[j].placeholder,
                 width: '90%',
+                multiple: allowMultiselect,
                 data: option_data
             }).on('select2:unselecting', function() {
                 $(this).data('unselecting', true);
@@ -170,7 +174,7 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
                     e.preventDefault();
                 }
             }).on('select2:selecting', function() {
-                console.log('selected!');
+                lookupAssistant.log('selected!');
             })
             ;
 
@@ -205,14 +209,18 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
                     .trigger('blur')
                 ;
 
-                // Hide current lookups
-                $(sel).closest('div.lookupAssistant').hide();
-                // console.log(sel, c);
+                if ($(sel).data('allowMultiselect')) {
+                    // Dont hide lookups
+                } else {
+                    // Hide current lookups
+                    $(sel).closest('div.lookupAssistant').hide();
+                    // console.log(sel, c);
 
-                // Goto next input/select
-                setTimeout(function() {
-                    t.parentsUntil('tr').parent().next().find('input,select').focus();
-                }, 100);
+                    // Goto next input/select
+                    setTimeout(function() {
+                        t.parentsUntil('tr').parent().next().find('input,select').focus();
+                    }, 100);
+                }
             }
         }
 

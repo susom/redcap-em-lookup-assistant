@@ -98,7 +98,12 @@
           "required": false,
           "type": "checkbox"
         },
-
+        {
+          "key": "allow-multiselect",
+          "name": "<b>Allow Multiselect</b><br>This only applies to the last level of the hierarchy but allows multiple values to be selected as stored as comma-separated values",
+          "required": false,
+          "type": "checkbox"
+        },
         {
           "key": "hierarchy",
           "name": "Data Level Hierarchy",
@@ -124,7 +129,6 @@
               "required": false,
               "type": "checkbox"
             }
-
           ]
         }
       ]
