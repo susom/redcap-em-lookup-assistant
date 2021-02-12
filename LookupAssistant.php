@@ -3,7 +3,6 @@
 namespace Stanford\LookupAssistant;
 
 use \REDCap as REDCap;
-// use \Plugin as Plugin;
 
 require_once("emLoggerTrait.php");
 
@@ -172,94 +171,30 @@ class LookupAssistant extends \ExternalModules\AbstractExternalModule
         // return $settings;
     }
 
+	function injectLookup($instrument)
+	{
+		$this->loadSettings($instrument);
+		if (!empty($this->errors)) {
+			$this->emDebug($this->errors);
+			return false;
+		}
 
-    function redcap_data_entry_form_top($project_id, $record, $instrument, $event_id, $group_id)
-    {
+		// Skip out if there is nothing to do
+		if (empty($this->settings)) return false;
 
-        $this->loadSettings($instrument);
-        if (!empty($this->errors)) {
-            $this->emDebug($this->errors);
-            return false;
-        }
+		// DUMP CONTENTS TO JAVASCRIPT
+		// Append the select2 controls
+		$this->insertSelect2();
 
-        // Skip out if there is nothing to do
-        if (empty($this->settings)) return false;
+		echo "<style type='text/css'>" . $this->dumpResource("css/lookup-assistant.css") . "</style>";
 
+		// // Insert our custom JS
+		echo "<script type='text/javascript'>" . $this->dumpResource("js/lookupAssistant.js") . "</script>";
 
-        // // FILTER OUT SETTINGS NOT ON CURRENT INSTRUMENT
-        // $instrument_fields = REDCap::getFieldNames($instrument);
-        // foreach ($this->settings as $i => $setting) {
-        //     // Skip if field isn't present on instrument
-        //     if (! in_array($setting['field'], $instrument_fields)) {
-	    //         $this->emDebug("Filtering out " . $setting['field'] . " - not on current page $instrument");
-	    //         unset($this->settings[$i]);
-        //     }
-        // }
-
-
-        // DUMP CONTENTS TO JAVASCRIPT
-        // Append the select2 controls
-        $this->insertSelect2();
-
-        echo "<style type='text/css'>" . $this->dumpResource("css/lookup-assistant.css") . "</style>";
-
-        // // Insert our custom JS
-        echo "<script type='text/javascript'>" . $this->dumpResource("js/lookupAssistant.js") . "</script>";
-
-        // Insert our custom JS
-        echo "<script type='text/javascript'>lookupAssistant.settings = " . json_encode($this->settings) . "</script>";
-	    echo "<script type='text/javascript'>lookupAssistant.jsDebug = " . json_encode($this->getProjectSetting('enable-js-debug')) . "</script>";
-        ?>
-            <style>
-                .lookupIcon {
-                    position: absolute;
-                }
-                .lookupIcon > span {
-                    position: relative;
-                    left: -20px;
-                    cursor: pointer;
-                }
-            </style>
-        <?php
-
-    }
-
-
-    function redcap_survey_page_top($project_id, $record, $instrument, $event_id, $group_id) {
-	    $this->loadSettings($instrument);
-	    if (!empty($this->errors)) {
-		    $this->emDebug($this->errors);
-		    return false;
-	    }
-
-	    // Skip out if there is nothing to do
-	    if (empty($this->settings)) return false;
-
-
-	    // // FILTER OUT SETTINGS NOT ON CURRENT INSTRUMENT
-	    // $instrument_fields = REDCap::getFieldNames($instrument);
-	    // foreach ($this->settings as $i => $setting) {
-	    //     // Skip if field isn't present on instrument
-	    //     if (! in_array($setting['field'], $instrument_fields)) {
-	    //         $this->emDebug("Filtering out " . $setting['field'] . " - not on current page $instrument");
-	    //         unset($this->settings[$i]);
-	    //     }
-	    // }
-
-
-	    // DUMP CONTENTS TO JAVASCRIPT
-	    // Append the select2 controls
-	    $this->insertSelect2();
-
-	    echo "<style type='text/css'>" . $this->dumpResource("css/lookup-assistant.css") . "</style>";
-
-	    // // Insert our custom JS
-	    echo "<script type='text/javascript'>" . $this->dumpResource("js/lookupAssistant.js") . "</script>";
-
-	    // Insert our custom JS
-	    echo "<script type='text/javascript'>lookupAssistant.settings = " . json_encode($this->settings) . "</script>";
-	    echo "<script type='text/javascript'>lookupAssistant.jsDebug = " . json_encode($this->getProjectSetting('enable-js-debug')) . "</script>";
-	    ?>
+		// Insert our custom JS
+		echo "<script type='text/javascript'>lookupAssistant.settings = " . json_encode($this->settings) . "</script>";
+		echo "<script type='text/javascript'>lookupAssistant.jsDebug = " . json_encode($this->getProjectSetting('enable-js-debug')) . "</script>";
+		?>
         <style>
             .lookupIcon {
                 position: absolute;
@@ -270,7 +205,19 @@ class LookupAssistant extends \ExternalModules\AbstractExternalModule
                 cursor: pointer;
             }
         </style>
-	    <?php
+		<?php
+	}
+
+
+	function redcap_data_entry_form_top($project_id, $record, $instrument, $event_id, $group_id)
+    {
+        $this->injectLookup($instrument);
+    }
+
+
+    function redcap_survey_page_top($project_id, $record, $instrument, $event_id, $group_id)
+    {
+	    $this->injectLookup($instrument);
     }
 
 
