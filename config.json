@@ -3,7 +3,7 @@
 
   "namespace":"Stanford\\LookupAssistant",
 
-  "description": "Create hospital list filtered by selection of district and type",
+  "description": "A utility to convert a text field into a hierarchical lookup powered by select2.  Useful hierarchical categorization.",
 
   "authors": [
     {

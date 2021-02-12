@@ -36,4 +36,14 @@ a 'country' is selected.  Or, you can have all states merged into a single field
 second option can cause delays if the hierarchy is large as the processing is done on the client.
 
 You can choose whether the final text entry field is editable or not.  If it is editable, one can choose a value
-that is not part of the lookup.
+that is not part of the lookup.  So, you can try and reduce duplicate entries but still permit the entry of a value
+not in your hierarchy.
+
+## Improvements
+A ton could be done to make this better..
+- Adding the option to store the intermediate hierarchies in different fields
+- Ability to control coding vs what's visible in the select2
+- server-side lookups for REALLY large hierarchies (similar to the ontologies)
+
+It was made for the purpose of finding hospitals/clinics in India.  There are a LOT in the entire country.  This allowed
+for a rapid search and drastically reduced errors when free-text entry was used.
