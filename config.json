@@ -22,6 +22,8 @@
     "hook_survey_page_top"
   ],
 
+  "framework-version": 5,
+
   "links": {
     "control-center": [
     ],
@@ -30,21 +32,59 @@
   },
 
   "system-settings": [
+    {
+      "key": "enable-system-debug-logging",
+      "name": "<b>Enable Debug Logging (system-wide)</b><i>(optional)</i> Requires installation and configuration of emLogger",
+      "required": false,
+      "type": "checkbox"
+    }
   ],
 
   "project-settings": [
     {
-      "key": "field-settings",
+      "key": "instances",
       "name": "Fields to Enable Lookup Assistant",
       "required": "false",
       "type": "sub_settings",
       "repeatable": true,
       "sub_settings": [
         {
+          "key": "json-source",
+          "name": "<b>Select the source for your lookup table</b><br>Only select one and make sure you have the proper value set below",
+          "required": false,
+          "type": "radio",
+          "choices": [
+            {
+              "name": "<b>(A) Upload a File</b>",
+              "value": "json-data-file"
+            },
+            {
+              "name": "<b>(B) Paste to TextArea</b>",
+              "value": "json-data"
+            },
+            {
+              "name": "<b>(C) Url for data</b>",
+              "value": "json-url"
+            }
+          ]
+        },
+        {
           "key": "json-data-file",
-          "name": "<b>Filename containing hierarchical data lookup table</b><br>If the file resides locally on the server in another path, a super-user can write the json_data_path variable for this project_module and it will override the uploaded file value.",
+          "name": "<b>(A) Filename containing hierarchical data lookup table</b><br>If the file resides locally on the server in another path, a super-user can write the json_data_path variable for this project_module and it will override the uploaded file value.",
           "required": false,
           "type": "file"
+        },
+        {
+          "key": "json-data",
+          "name": "<b>(B) Json data containing hierarchical data lookup table</b>",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "key": "json-url",
+          "name": "<b>(C) Public url containing json data</b>",
+          "required": false,
+          "type": "text"
         },
         {
           "key": "field",
@@ -88,7 +128,20 @@
           ]
         }
       ]
+    },
+    {
+      "key": "enable-project-debug-logging",
+      "name": "<b>Enable Debug Logging</b><br><i>(optional)</i> Requires installation and configuration of emLogger",
+      "required": false,
+      "type": "checkbox"
+    },
+    {
+      "key": "enable-js-debug",
+      "name": "<b>Enable javascript debugging</b>",
+      "required": false,
+      "type": "checkbox"
     }
+
   ],
 
   "json": [

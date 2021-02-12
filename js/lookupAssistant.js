@@ -1,28 +1,95 @@
 var lookupAssistant = lookupAssistant || {};
-
 var langMsg68 = '';
 
-// ADDS A SELECT ELEMENT WITH DATA ATTRIBUTES
-lookupAssistant.addFilter = function(setting, i) { //id, target, field, i, level) {
 
-    var level = setting.levels[i];
+lookupAssistant.init = function() {
 
-    // Bind to state selection
-    var sel = $('<select/>')
-        .attr('id', level.id)
-        .data('level', i)
-        .data('field', setting.field)
-        .data('placeholder', level.placeholder)
-        .data('aggregateOnEmpty', level.aggregateOnEmpty)
-        .data('updateTarget', level.updateTarget)
-        .insertBefore(setting.target)
-        .wrapAll('<div/>')
-        .on('change', function() {
-            // lookupAssistant.log('Change at ' , this);
-            lookupAssistant.updateFilters(this, false);
+    lookupAssistant.log("Init Settings:", lookupAssistant.settings);
+
+    $.each(lookupAssistant.settings, function (i, setting) {
+
+        // Get the target field
+        let field = setting.field;
+        lookupAssistant.log("Setting up " + field);
+
+        lookupAssistant.modal = $('div.lookupAssistantDialog');
+        lookupAssistant.modalBody = $('div.lookupAssistantDialog .modal-body');
+
+        // Make a link from field to setting
+        lookupAssistant.settings[field] = setting;
+
+        // Make a pointer to the setting from the field
+        // lookupAssistant.settings[field] = setting;
+        // lookupAssistant.fieldIndex[field] = i;
+
+        // Make a pointer to the input name
+        setting.target = $('input[name="' + field + '"]');
+
+        // Add settings index to target for reverse lookup
+        setting.target.data("lookupAssistantIndex", i);
+
+        // Create a lookup icon and overlay on input
+        var icon = $('<span class="lookupIcon"><span title="Lookup Assistant" class="badge badge-xs p-1 btn-secondary text-light"><i class="fas fa-search-plus"></i></span></span>')
+            .on('click', function() {
+                // console.log(this, $(this).parentsUntil('tr').find('.lookupAssistant'));
+                $(this).parentsUntil('tr').find('.lookupAssistant').toggle();
+            })
+            .insertAfter(setting.target)
+        ;
+
+        // Make target read-only
+        if (setting['edit-target'] === false) {
+            setting.target.attr('disabled','disabled');
+        }
+
+        // Go through each level and create a new select element
+        var container = $('<div class="lookupAssistant"></div>')
+            .insertBefore(setting.target);
+
+        $.each(setting.hierarchy, function(j, detail) {
+            // level comes with placeholder, aggregate-on-empty, and update-target
+
+            lookupAssistant.log("Setting up level " + j, detail);
+            detail.level = j;
+            detail.sel = $('<select/>')
+                .attr('id', 'select-' + field + '-' + j)
+                .data('level', j)
+                .data('field', field)
+                .data('placeholder', detail.placeholder)
+                .data('aggregateOnEmpty', detail['aggregate-on-empty'])
+                .data('updateTarget', detail['update-target'])
+                // .insertBefore(setting.target)
+                // .appendTo(lookupAssistant.modalBody)
+                .wrapAll('<div/>')
+                .on('change', function() {
+                    lookupAssistant.updateFilters(this, false);
+                })
+                .appendTo(container)
+            ;
+                // lookupAssistant.addFilter(setting, j);
         });
 
-    return sel;
+        lookupAssistant.log("Set up done");
+        // lookupAssistant.modal.show();
+
+        $('<hr/>').css({ 'margin':'3px 3px'}).appendTo(container);
+
+        // Initialize the initial filter
+        // lookupAssistant.log("About to update initial filters for: ", setting);
+        lookupAssistant.updateFilters(setting.hierarchy[0].sel[0], true);
+
+        // If
+        if (setting.target.val() !== '') {
+            container.toggle();
+        }
+
+    });
+
+    // Convert select2 inputs of type search to text so that the backspace key works
+    $('body').on('focus', ".select2-search__field", function() {
+        // lookupAssistant.log(this);
+        if ( $(this).attr('type') === 'search') $(this).attr('type','text');
+    });
 };
 
 lookupAssistant.filterLevel = function(json, value, aggregation) {
@@ -51,26 +118,27 @@ lookupAssistant.filterLevel = function(json, value, aggregation) {
     return false;
 };
 
-
 // Take an update to any filter and propagate it down the rest
 lookupAssistant.updateFilters = function(select, forceUpdate) {
 
     // Load reference data
+    lookupAssistant.log('updateFilters', select, forceUpdate);
+
     var field = $(select).data('field');
     var setting = lookupAssistant.settings[field];
     var level_changed = $(select).data('level');
-    var level_max = setting.levels.length - 1;
+    var level_max = setting.hierarchy.length - 1;
     var updateTarget = $(select).data('updateTarget');
     //var editTarget = setting.edit_target;
 
-    lookupAssistant.log('66', select, level_changed, updateTarget, forceUpdate);
+    lookupAssistant.log('131', select, level_changed, updateTarget, forceUpdate, setting.json);
 
     // Filter Data from Level 0 up
-    var data = Object.assign({}, setting.json); // This is the running data from the settings
+    var data = Object.assign({}, JSON.parse(setting['json-data'])); // This is the running data from the settings
     var empty_remainder = false;                // This is a variable to skip remaining fields
 
     for (j=0; j<=level_max; j++) {
-        var sel              = setting.levels[j].sel;
+        var sel              = setting.hierarchy[j].sel;
         var filterValue      = sel.val() || "";
         var aggregateOnEmpty = sel.data('aggregateOnEmpty') || false;
 
@@ -91,7 +159,7 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
             sel.select2({
                 theme: 'bootstrap',
                 allowClear: true,
-                placeholder: setting.levels[j].placeholder,
+                placeholder: setting.hierarchy[j].placeholder,
                 width: '90%',
                 data: option_data
             }).on('select2:unselecting', function() {
@@ -101,7 +169,10 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
                     $(this).removeData('unselecting');
                     e.preventDefault();
                 }
-            });
+            }).on('select2:selecting', function() {
+                console.log('selected!');
+            })
+            ;
 
             // Try to reset it to its current value if still valid
             // if (sel.val() !== cache_val) {
@@ -124,11 +195,25 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
         }
 
         // If it is the last level, then check to update the target
-        lookupAssistant.log('Level changed was ' + level_changed + ' and updateTarget is ' , updateTarget);
+        lookupAssistant.log(setting.field + ' Level changed was ' + level_changed + ' and updateTarget is ' , updateTarget);
         if (j === level_changed && updateTarget) {
-            setting.target
-                .val(sel.val())
-                .trigger('blur');
+            if (setting.target.val() == '' && sel.val() == '') {
+                // Don't do anything
+            } else {
+                var t = setting.target
+                    .val(sel.val())
+                    .trigger('blur')
+                ;
+
+                // Hide current lookups
+                $(sel).closest('div.lookupAssistant').hide();
+                // console.log(sel, c);
+
+                // Goto next input/select
+                setTimeout(function() {
+                    t.parentsUntil('tr').parent().next().find('input,select').focus();
+                }, 100);
+            }
         }
 
 
@@ -137,55 +222,15 @@ lookupAssistant.updateFilters = function(select, forceUpdate) {
     // Get next level select
     if (level_changed < level_max && !forceUpdate && $(select).val() != '') {
         // lookupAssistant.log("NEXT", level_changed, level_max);
-        var next = setting.levels[level_changed + 1].sel;
+        var next = setting.hierarchy[level_changed + 1].sel;
         // lookupAssistant.log(next);
         next.select2('open');
     }
 };
 
-lookupAssistant.init = function() {
-
-    $.each(lookupAssistant.settings, function (i, setting) {
-        var field = setting.field;
-        lookupAssistant.log("Setting up " + field);
-
-        // Make a pointer to the setting from the field
-        lookupAssistant.settings[field] = setting;
-
-        // Make a pointer to the input name
-        setting.target = $('input[name="' + field + '"]');
-
-        // Make target read-only
-        if (setting.edit_target === false) {
-            setting.target.attr('disabled','disabled');
-        }
-
-        // Go through each level and create a new select element
-        $.each(setting.levels, function(i, level) {
-            lookupAssistant.log("Setting up level " + i, level);
-            level.level = i;
-            level.id = 'select-' + field + '-' + i;
-            level.sel = lookupAssistant.addFilter(setting, i);
-        });
-
-        $('<hr/>').css({ 'margin':'3px 3px'}).insertBefore(setting.target);
-
-        // Initialize the initial filter
-        lookupAssistant.log("About to update initial filters for: ", setting);
-        lookupAssistant.updateFilters(setting.levels[0].sel[0], true);
-    });
-
-    // Convert select2 inputs of type search to text so that the backspace key works
-    $('body').on('focus', ".select2-search__field", function() {
-        // lookupAssistant.log(this);
-        if ( $(this).attr('type') === 'search') $(this).attr('type','text');
-    });
-};
-
 lookupAssistant.log = function() {
-    // console.log.apply(null, arguments);
+    if (this.jsDebug) console.log.apply(null, arguments);
 };
-
 
 $(document).ready(function(){
     lookupAssistant.init();
