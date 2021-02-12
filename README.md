@@ -47,3 +47,5 @@ A ton could be done to make this better..
 
 It was made for the purpose of finding hospitals/clinics in India.  There are a LOT in the entire country.  This allowed
 for a rapid search and drastically reduced errors when free-text entry was used.
+
+An example is here: https://redcap.stanford.edu/surveys/?s=HR4EWEKKKY

@@ -25,6 +25,7 @@ class LookupAssistant extends \ExternalModules\AbstractExternalModule
             // All good
             return $contents;
         } else {
+            $this->emError("Error decoding JSON", json_last_error_msg());
             return false;
             // $this->errors[] = "Error decoding path $path: " . json_last_error_msg();
         }
