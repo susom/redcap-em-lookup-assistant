@@ -12,7 +12,7 @@ The 'hierarchy' file must be in JSON format and looks something like:
   "United States": {
     "Minnesota": {
       "Minneapolis": "Minneapolis",
-      "St. Paul": "St. Paul",
+      "St. Paul": "St. Paul"
     },
     "California": {
       "Fresno": "Fresno"
