@@ -22,7 +22,7 @@
     "hook_survey_page_top"
   ],
 
-  "framework-version": 5,
+  "framework-version": 9,
 
   "links": {
     "control-center": [

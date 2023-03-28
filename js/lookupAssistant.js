@@ -1,7 +1,6 @@
 var lookupAssistant = lookupAssistant || {};
 var langMsg68 = '';
 
-
 lookupAssistant.init = function() {
 
     lookupAssistant.log("Init Settings:", lookupAssistant.settings);
